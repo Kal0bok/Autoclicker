@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AutoClickerFrame extends JFrame {
+public class Autoclicker extends JFrame {
     private JSpinner hoursSpinner, minutesSpinner, secondsSpinner, millisecondsSpinner;
     private JComboBox<String> clickButtonCombo;
     private JTextField startKeyField, stopKeyField;
@@ -16,125 +16,122 @@ public class AutoClickerFrame extends JFrame {
     private AtomicBoolean isRunning = new AtomicBoolean(false);
     private Robot robot;
     private Thread clickThread;
+    
+    // Коды клавиш для кликов
+    private String[] clickButtons = {"ЛКМ", "ПКМ", "СКМ"};
     private int[] clickButtonCodes = {InputEvent.BUTTON1_DOWN_MASK, InputEvent.BUTTON3_DOWN_MASK, InputEvent.BUTTON2_DOWN_MASK};
     
-    public AutoClickerFrame() {
+    public Autoclicker() {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            JOptionPane.showMessageDialog(this, "Robot creation error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Ошибка создания Robot: " + e.getMessage());
             System.exit(1);
         }
-        initializeFrame();
+        
         initializeUI();
         setupEventListeners();
     }
     
-    private void initializeFrame() {
-        setTitle("Auto Clicker");
+    private void initializeUI() {
+        setTitle("Автокликер");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
-        setResizable(false);
-    }
-    
-    private void initializeUI() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        mainPanel.add(createTimePanel());
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(createButtonPanel());
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(createHotkeyPanel());
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(createControlPanel());
-        
-        add(mainPanel, BorderLayout.CENTER);
-        add(createStatusLabel(), BorderLayout.SOUTH);
-        
-        pack();
-        setLocationRelativeTo(null);
-    }
-    
-    private JPanel createTimePanel() {
+        // Панель настроек времени
         JPanel timePanel = new JPanel(new GridLayout(2, 4, 5, 5));
-        timePanel.setBorder(BorderFactory.createTitledBorder("Click Interval"));
+        timePanel.setBorder(new TitledBorder("Интервал кликов"));
         
-        timePanel.add(new JLabel("Hours:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Часы:", SwingConstants.RIGHT));
         hoursSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 23, 1));
         timePanel.add(hoursSpinner);
         
-        timePanel.add(new JLabel("Minutes:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Минуты:", SwingConstants.RIGHT));
         minutesSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
         timePanel.add(minutesSpinner);
         
-        timePanel.add(new JLabel("Seconds:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Секунды:", SwingConstants.RIGHT));
         secondsSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 59, 1));
         timePanel.add(secondsSpinner);
         
-        timePanel.add(new JLabel("Milliseconds:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Милисекунды:", SwingConstants.RIGHT));
         millisecondsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 999, 50));
         timePanel.add(millisecondsSpinner);
         
-        return timePanel;
-    }
-    
-    private JPanel createButtonPanel() {
+        // Панель выбора кнопки
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.setBorder(BorderFactory.createTitledBorder("Click Settings"));
+        buttonPanel.setBorder(new TitledBorder("Настройки клика"));
         
-        buttonPanel.add(new JLabel("Mouse button:"));
-        clickButtonCombo = new JComboBox<>(new String[]{"Left Button", "Right Button", "Middle Button"});
+        buttonPanel.add(new JLabel("Кнопка мыши:"));
+        clickButtonCombo = new JComboBox<>(clickButtons);
         buttonPanel.add(clickButtonCombo);
         
-        return buttonPanel;
-    }
-    
-    private JPanel createHotkeyPanel() {
+        // Панель горячих клавиш
         JPanel hotkeyPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        hotkeyPanel.setBorder(BorderFactory.createTitledBorder("Hotkeys"));
+        hotkeyPanel.setBorder(new TitledBorder("Горячие клавиши"));
         
-        hotkeyPanel.add(new JLabel("Start key:"));
+        hotkeyPanel.add(new JLabel("Клавиша старта:"));
         startKeyField = new JTextField("F6");
         startKeyField.setEditable(false);
         hotkeyPanel.add(startKeyField);
         
-        hotkeyPanel.add(new JLabel("Stop key:"));
+        hotkeyPanel.add(new JLabel("Клавиша остановки:"));
         stopKeyField = new JTextField("F7");
         stopKeyField.setEditable(false);
         hotkeyPanel.add(stopKeyField);
         
+        // Добавляем слушатели для захвата клавиш
         setupKeyCapture(startKeyField, "start");
         setupKeyCapture(stopKeyField, "stop");
         
-        return hotkeyPanel;
-    }
-    
-    private JPanel createControlPanel() {
+        // Панель управления
         JPanel controlPanel = new JPanel(new FlowLayout());
-        startButton = new JButton("Start (F6)");
-        stopButton = new JButton("Stop (F7)");
+        startButton = new JButton("Старт (F6)");
+        stopButton = new JButton("Стоп (F7)");
         stopButton.setEnabled(false);
         
         controlPanel.add(startButton);
         controlPanel.add(stopButton);
         
-        return controlPanel;
-    }
-    
-    private JLabel createStatusLabel() {
-        statusLabel = new JLabel("Ready to work");
+        // Статусная панель
+        statusLabel = new JLabel("Готов к работе");
         statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        return statusLabel;
+        
+        // Собираем интерфейс
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        mainPanel.add(timePanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(buttonPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(hotkeyPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(controlPanel);
+        
+        add(mainPanel, BorderLayout.CENTER);
+        add(statusLabel, BorderLayout.SOUTH);
+        
+        pack();
+        setLocationRelativeTo(null);
+        setResizable(false);
+    }
+    
+    private void setupEventListeners() {
+        startButton.addActionListener(e -> startClicking());
+        stopButton.addActionListener(e -> stopClicking());
+        
+        // Глобальные горячие клавиши
+        setupGlobalHotkeys();
     }
     
     private void setupKeyCapture(JTextField field, String type) {
         field.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                field.setText("Press any key...");
+                field.setText("Нажмите клавишу...");
                 field.addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
@@ -142,22 +139,16 @@ public class AutoClickerFrame extends JFrame {
                         field.setText(keyText);
                         field.removeKeyListener(this);
                         
-                        // Update button text
+                        // Обновляем текст кнопок
                         if (type.equals("start")) {
-                            startButton.setText("Start (" + keyText + ")");
+                            startButton.setText("Старт (" + keyText + ")");
                         } else {
-                            stopButton.setText("Stop (" + keyText + ")");
+                            stopButton.setText("Стоп (" + keyText + ")");
                         }
                     }
                 });
             }
         });
-    }
-    
-    private void setupEventListeners() {
-        startButton.addActionListener(e -> startClicking());
-        stopButton.addActionListener(e -> stopClicking());
-        setupGlobalHotkeys();
     }
     
     private void setupGlobalHotkeys() {
@@ -180,14 +171,14 @@ public class AutoClickerFrame extends JFrame {
         
         long totalMillis = calculateTotalMilliseconds();
         if (totalMillis <= 0) {
-            JOptionPane.showMessageDialog(this, "Set interval greater than 0!");
+            JOptionPane.showMessageDialog(this, "Установите интервал больше 0!");
             return;
         }
         
         isRunning.set(true);
         startButton.setEnabled(false);
         stopButton.setEnabled(true);
-        statusLabel.setText("Running...");
+        statusLabel.setText("Работает...");
         
         int buttonIndex = clickButtonCombo.getSelectedIndex();
         final int buttonMask = clickButtonCodes[buttonIndex];
@@ -196,8 +187,9 @@ public class AutoClickerFrame extends JFrame {
             try {
                 while (isRunning.get()) {
                     robot.mousePress(buttonMask);
-                    Thread.sleep(50);
+                    Thread.sleep(50); // Короткая задержка между нажатием и отпусканием
                     robot.mouseRelease(buttonMask);
+                    
                     Thread.sleep(totalMillis);
                 }
             } catch (InterruptedException ex) {
@@ -212,7 +204,7 @@ public class AutoClickerFrame extends JFrame {
         isRunning.set(false);
         startButton.setEnabled(true);
         stopButton.setEnabled(false);
-        statusLabel.setText("Stopped");
+        statusLabel.setText("Остановлено");
         
         if (clickThread != null && clickThread.isAlive()) {
             clickThread.interrupt();
@@ -226,5 +218,17 @@ public class AutoClickerFrame extends JFrame {
         int millis = (Integer) millisecondsSpinner.getValue();
         
         return hours * 3600000L + minutes * 60000L + seconds * 1000L + millis;
+    }
+    
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getLookAndFeel());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        SwingUtilities.invokeLater(() -> {
+            new Autoclicker().setVisible(true);
+        });
     }
 }
