@@ -17,15 +17,15 @@ public class Autoclicker extends JFrame {
     private Robot robot;
     private Thread clickThread;
     
-    // Коды клавиш для кликов
-    private String[] clickButtons = {"ЛКМ", "ПКМ", "СКМ"};
+    // Key codes for mouse clicks
+    private String[] clickButtons = {"Left Button", "Right Button", "Middle Button"};
     private int[] clickButtonCodes = {InputEvent.BUTTON1_DOWN_MASK, InputEvent.BUTTON3_DOWN_MASK, InputEvent.BUTTON2_DOWN_MASK};
     
     public Autoclicker() {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            JOptionPane.showMessageDialog(this, "Ошибка создания Robot: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error creating Robot: " + e.getMessage());
             System.exit(1);
         }
         
@@ -34,71 +34,71 @@ public class Autoclicker extends JFrame {
     }
     
     private void initializeUI() {
-        setTitle("Автокликер");
+        setTitle("Auto Clicker");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         
-        // Панель настроек времени
+        // Time interval settings panel
         JPanel timePanel = new JPanel(new GridLayout(2, 4, 5, 5));
-        timePanel.setBorder(new TitledBorder("Интервал кликов"));
+        timePanel.setBorder(new TitledBorder("Click Interval"));
         
-        timePanel.add(new JLabel("Часы:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Hours:", SwingConstants.RIGHT));
         hoursSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 23, 1));
         timePanel.add(hoursSpinner);
         
-        timePanel.add(new JLabel("Минуты:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Minutes:", SwingConstants.RIGHT));
         minutesSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
         timePanel.add(minutesSpinner);
         
-        timePanel.add(new JLabel("Секунды:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Seconds:", SwingConstants.RIGHT));
         secondsSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 59, 1));
         timePanel.add(secondsSpinner);
         
-        timePanel.add(new JLabel("Милисекунды:", SwingConstants.RIGHT));
+        timePanel.add(new JLabel("Milliseconds:", SwingConstants.RIGHT));
         millisecondsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 999, 50));
         timePanel.add(millisecondsSpinner);
         
-        // Панель выбора кнопки
+        // Button selection panel
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.setBorder(new TitledBorder("Настройки клика"));
+        buttonPanel.setBorder(new TitledBorder("Click Settings"));
         
-        buttonPanel.add(new JLabel("Кнопка мыши:"));
+        buttonPanel.add(new JLabel("Mouse Button:"));
         clickButtonCombo = new JComboBox<>(clickButtons);
         buttonPanel.add(clickButtonCombo);
         
-        // Панель горячих клавиш
+        // Hotkeys panel
         JPanel hotkeyPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        hotkeyPanel.setBorder(new TitledBorder("Горячие клавиши"));
+        hotkeyPanel.setBorder(new TitledBorder("Hotkeys"));
         
-        hotkeyPanel.add(new JLabel("Клавиша старта:"));
+        hotkeyPanel.add(new JLabel("Start Key:"));
         startKeyField = new JTextField("F6");
         startKeyField.setEditable(false);
         hotkeyPanel.add(startKeyField);
         
-        hotkeyPanel.add(new JLabel("Клавиша остановки:"));
+        hotkeyPanel.add(new JLabel("Stop Key:"));
         stopKeyField = new JTextField("F7");
         stopKeyField.setEditable(false);
         hotkeyPanel.add(stopKeyField);
         
-        // Добавляем слушатели для захвата клавиш
+        // Add listeners for key capture
         setupKeyCapture(startKeyField, "start");
         setupKeyCapture(stopKeyField, "stop");
         
-        // Панель управления
+        // Control panel
         JPanel controlPanel = new JPanel(new FlowLayout());
-        startButton = new JButton("Старт (F6)");
-        stopButton = new JButton("Стоп (F7)");
+        startButton = new JButton("Start (F6)");
+        stopButton = new JButton("Stop (F7)");
         stopButton.setEnabled(false);
         
         controlPanel.add(startButton);
         controlPanel.add(stopButton);
         
-        // Статусная панель
-        statusLabel = new JLabel("Готов к работе");
+        // Status panel
+        statusLabel = new JLabel("Ready to work");
         statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        // Собираем интерфейс
+        // Assemble interface
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -123,7 +123,7 @@ public class Autoclicker extends JFrame {
         startButton.addActionListener(e -> startClicking());
         stopButton.addActionListener(e -> stopClicking());
         
-        // Глобальные горячие клавиши
+        // Global hotkeys
         setupGlobalHotkeys();
     }
     
@@ -131,7 +131,7 @@ public class Autoclicker extends JFrame {
         field.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                field.setText("Нажмите клавишу...");
+                field.setText("Press any key...");
                 field.addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
@@ -139,11 +139,11 @@ public class Autoclicker extends JFrame {
                         field.setText(keyText);
                         field.removeKeyListener(this);
                         
-                        // Обновляем текст кнопок
+                        // Update button text
                         if (type.equals("start")) {
-                            startButton.setText("Старт (" + keyText + ")");
+                            startButton.setText("Start (" + keyText + ")");
                         } else {
-                            stopButton.setText("Стоп (" + keyText + ")");
+                            stopButton.setText("Stop (" + keyText + ")");
                         }
                     }
                 });
@@ -171,14 +171,14 @@ public class Autoclicker extends JFrame {
         
         long totalMillis = calculateTotalMilliseconds();
         if (totalMillis <= 0) {
-            JOptionPane.showMessageDialog(this, "Установите интервал больше 0!");
+            JOptionPane.showMessageDialog(this, "Set interval greater than 0!");
             return;
         }
         
         isRunning.set(true);
         startButton.setEnabled(false);
         stopButton.setEnabled(true);
-        statusLabel.setText("Работает...");
+        statusLabel.setText("Running...");
         
         int buttonIndex = clickButtonCombo.getSelectedIndex();
         final int buttonMask = clickButtonCodes[buttonIndex];
@@ -187,7 +187,7 @@ public class Autoclicker extends JFrame {
             try {
                 while (isRunning.get()) {
                     robot.mousePress(buttonMask);
-                    Thread.sleep(50); // Короткая задержка между нажатием и отпусканием
+                    Thread.sleep(50); // Short delay between press and release
                     robot.mouseRelease(buttonMask);
                     
                     Thread.sleep(totalMillis);
@@ -204,7 +204,7 @@ public class Autoclicker extends JFrame {
         isRunning.set(false);
         startButton.setEnabled(true);
         stopButton.setEnabled(false);
-        statusLabel.setText("Остановлено");
+        statusLabel.setText("Stopped");
         
         if (clickThread != null && clickThread.isAlive()) {
             clickThread.interrupt();
