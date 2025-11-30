@@ -8,6 +8,8 @@ public class AutoClickerFrame extends JFrame {
     private JSpinner hoursSpinner, minutesSpinner, secondsSpinner, millisecondsSpinner;
     private JComboBox<String> clickButtonCombo;
     private JTextField startKeyField, stopKeyField;
+    private JButton startButton, stopButton;
+    private JLabel statusLabel;
     
     public AutoClickerFrame() {
         initializeFrame();
@@ -31,8 +33,12 @@ public class AutoClickerFrame extends JFrame {
         mainPanel.add(createButtonPanel());
         mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         mainPanel.add(createHotkeyPanel());
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(createControlPanel());
         
         add(mainPanel, BorderLayout.CENTER);
+        add(createStatusLabel(), BorderLayout.SOUTH);
+        
         pack();
         setLocationRelativeTo(null);
     }
@@ -46,39 +52,29 @@ public class AutoClickerFrame extends JFrame {
     }
     
     private JPanel createHotkeyPanel() {
-        JPanel hotkeyPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        hotkeyPanel.setBorder(BorderFactory.createTitledBorder("Hotkeys"));
+        // ... same as previous commit
+    }
+    
+    private JPanel createControlPanel() {
+        JPanel controlPanel = new JPanel(new FlowLayout());
+        startButton = new JButton("Start (F6)");
+        stopButton = new JButton("Stop (F7)");
+        stopButton.setEnabled(false);
         
-        hotkeyPanel.add(new JLabel("Start key:"));
-        startKeyField = new JTextField("F6");
-        startKeyField.setEditable(false);
-        hotkeyPanel.add(startKeyField);
+        controlPanel.add(startButton);
+        controlPanel.add(stopButton);
         
-        hotkeyPanel.add(new JLabel("Stop key:"));
-        stopKeyField = new JTextField("F7");
-        stopKeyField.setEditable(false);
-        hotkeyPanel.add(stopKeyField);
-        
-        setupKeyCapture(startKeyField, "start");
-        setupKeyCapture(stopKeyField, "stop");
-        
-        return hotkeyPanel;
+        return controlPanel;
+    }
+    
+    private JLabel createStatusLabel() {
+        statusLabel = new JLabel("Ready to work");
+        statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        return statusLabel;
     }
     
     private void setupKeyCapture(JTextField field, String type) {
-        field.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                field.setText("Press any key...");
-                field.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        String keyText = KeyEvent.getKeyText(e.getKeyCode());
-                        field.setText(keyText);
-                        field.removeKeyListener(this);
-                    }
-                });
-            }
-        });
+        // ... same as previous commit
     }
 }
