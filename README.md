@@ -1,4 +1,4 @@
-# AutoClicker
+# 🖱️AutoClicker
 
 A simple auto-clicker application built with Java Swing.
 
