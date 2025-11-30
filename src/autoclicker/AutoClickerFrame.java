@@ -2,9 +2,11 @@ package autoclicker;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class AutoClickerFrame extends JFrame {
     private JSpinner hoursSpinner, minutesSpinner, secondsSpinner, millisecondsSpinner;
+    private JComboBox<String> clickButtonCombo;
     
     public AutoClickerFrame() {
         initializeFrame();
@@ -19,11 +21,13 @@ public class AutoClickerFrame extends JFrame {
     }
     
     private void initializeUI() {
-        // Time settings panel
-        JPanel timePanel = createTimePanel();
-        
         JPanel mainPanel = new JPanel();
-        mainPanel.add(timePanel);
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        mainPanel.add(createTimePanel());
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(createButtonPanel());
         
         add(mainPanel, BorderLayout.CENTER);
         pack();
@@ -51,5 +55,16 @@ public class AutoClickerFrame extends JFrame {
         timePanel.add(millisecondsSpinner);
         
         return timePanel;
+    }
+    
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setBorder(BorderFactory.createTitledBorder("Click Settings"));
+        
+        buttonPanel.add(new JLabel("Mouse button:"));
+        clickButtonCombo = new JComboBox<>(new String[]{"Left Button", "Right Button", "Middle Button"});
+        buttonPanel.add(clickButtonCombo);
+        
+        return buttonPanel;
     }
 }
